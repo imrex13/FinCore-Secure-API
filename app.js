@@ -8,14 +8,20 @@ const connectDB = require('./config/db');
 const app = express();
 
 const authRouter = require("./routes/auth_router")
-
+const adminRouter = require("./routes/admin_router");
+const router = require("./routes/router");
 connectDB();
 
 app.use(express.json());
 app.use(helmet());
 
 
+// Using Routers
 app.use(authRouter)
+app.use(authRouter);
+app.use(adminRouter);
+app.use(router);
+
 
 
 // Routes come here later

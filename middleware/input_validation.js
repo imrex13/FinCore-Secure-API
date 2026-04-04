@@ -46,5 +46,61 @@ const login_input_validation = async(req, res, next) => {
     next();
 }
 
+const recordCreation_validation = async (req, res, next) => {
+   
+    const { amount, type, category, date, notes } = req.body;
 
-module.exports = {register_input_validation,login_input_validation}
+    if (!amount || !type || !category) {
+         return res.status(400).json({ message: "Kindly Provide all necessary fields" });
+    }
+    if (typeof(amount) !== 'number') {
+        return res.status(400).json({ message: "Amount must be a number" });
+    }
+    if (typeof(type) !== 'string') {
+        return res.status(400).json({ message: "Input Input" });
+    }
+    if (type !== 'income' && type !== 'expense') {
+        return res.status(400).json({ message: "Invalid Type" });
+    }
+    if (typeof(category) !== 'string') {
+        return res.status(400).json({ message: "Input Input" });
+    }
+    if (!date || isNaN(new Date(date))) {
+        return res.status(400).json({ message: "Invalid date format" });
+    }
+    if (notes !== undefined && typeof notes !== 'string') {
+        return res.status(400).json({ message: "Notes must be text" });
+    }
+
+    next();
+
+}
+
+    const recordUpdation_validation = async (req, res, next) => {
+    
+        const { amount, type, category, date, notes } = req.body;
+
+    if (amount !== undefined && typeof amount !== 'number') {
+            return res.status(400).json({ message: "Amount must be a number" });
+        }
+
+        if (type != undefined && type !== 'income' && type !== 'expense') {
+            return res.status(400).json({ message: "Invalid Type" });
+        }
+        if (category !== undefined && typeof category !== 'string') {
+            return res.status(400).json({ message: "Category must be a string" });
+        }
+        if (date !== undefined && isNaN(new Date(date))) {
+            return res.status(400).json({ message: "Invalid date format" });
+        }
+        if (notes !== undefined && typeof notes !== 'string') {
+            return res.status(400).json({ message: "Notes must be text" });
+        }
+
+        next();
+
+}
+    
+
+
+module.exports = {register_input_validation,login_input_validation,recordCreation_validation,recordUpdation_validation}

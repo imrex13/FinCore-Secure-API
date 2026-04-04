@@ -6,24 +6,24 @@ I had used AI for basic Boiler plate code.
 
 Things AI had developed:
 1. BoilerPlate code for app.js
-2. jwtAuthorize Middleware
-3. Comments for the code
-
+2. Comments for the code
+3. jwtAuthorize.js Middleware
 
 ---------------------------------------------
 Things I had developed: 
     1. User model
-    2. Middleware (Register_input_validation , Login_input_validation)
+    2. Middleware (Input_validator.js)
     3. Auth controller (authRegister, LoginRegister)
+    4. RBAC (Role Based Access Control)
+    5. Record model
+    6. Record controller (createRecord, getRecords, updateRecord, deleteRecord)
+    7. Admin controller (getUsers, updateUserStatus, deleteUser, updateUserRole)
+    8. All validation middleware for records and admin routes   
 
---------------------------------------------
-Why I used that? 
 
-1. In the Input Validation I use Validator.js library for email validation. It is for lightweight and simplicity.
 
 --------------------------------------------
 Why I did that? 
-
 
 1. I created isdelete on the userModel for soft delete so that we can see the deleted users for auditing.
 
@@ -38,7 +38,7 @@ Why I did that?
 In a production scenario we can store the permissions and user info like {email ,role, isActive} in redis so that when the user makes a request we can check the users info without querying DB and if the Admin makes changes the permissions or makes changes in user data like change in role or isActive status before updating we can check if the user data is in redis cache if yes delete the cache so that next time the user visits the role of the user will be queried from the DB which is updated and the user can access or loose access as per the update or become inActive. It also applies for Role and Permissions 
 
 
-4. I did not use Express-Mongo-Sanitize because the mongodb has built in NoSQL injection prevention at Schema level instead i used strict type checking like (typeof name === 'String') for extra security.
+4. I did not use Express-Mongo-Sanitize because it has compatibility issue with the current express version. And when I checked online the mongoDB handles NoSQL injection in the schema level. Additionally I used type checking (typeof name === 'string') for extra security 
 
 
 5. I used  await bcrypt.hash() instead of bcrypt.hashSync()  because while hashSync will block the entire thread process the await will hands the process to a worker thread and stops that particular function to stop for that process to complete while other request are handled as usual  
@@ -51,4 +51,34 @@ In a production scenario we can store the permissions and user info like {email 
  But then I thought what if the user changes the permission then i would have to update the entire DB. So for production grade, secure and better scalability we split the role into a seperate model and we only store the _id of the role in the User Model and when the user wants to access a endpoint that needs permission we check the user role and get the data from the Role model and join it with the user data and check the permission and user active status and is the user is soft deleted then we check if the user role has the specific permission for this endpoint. If yes the request moves on to the respective controller. If not the middleware throws a 403 Unauthorised to the user. Simple. 
 
 
-7. I used the timestamp option in userModel and roleModel to keep log of the created and lastupdated date and time.
+7. I used the timestamp option in userModel to keep log of the created and lastupdated date and time for audit purposes.
+
+
+8. I used createdBy and updatedBy fields in the recordModel database Schema beause we want to know who is responsible for creating that record and who updated the record. the timestamp will store the created and updation time so we do not need to do it manually.
+
+
+9. I thought of adding a Incremental uniqueid like (1,2,3,4,5) in Record for getting the record and search by Id feature but it will give problems like race-condition which is when two users post at the same exact second the database will have to decide which record has the next unique id. It is called race-condition. so in this I used the mongodb unique id which is indexed by default for fast retrieval of data. I saw somewhere that there is a solution for this race-condition I think that will be useful for production systems.
+
+
+10. I stored the amount as paise value so if the user types 500 rupees it gets stored as 500 * 100 = 500000 in the Database. and when returning records we divide by 100 and send it to the user. I used this because when i looked up in the internet It said the decimal point can throw a floating point error so for safety I did this.
+
+11. In the RecordCreation I precheck the "type" value in the middleware. those checks are checking if the type is a string and if the type is one of those two values I had predifined ["income","expense]. Yes the mongoDB automatically checks the type while creating the record because we used enum in the schema but it would create latency and it defeats the whole purpose of middleware Input_validation.   
+
+
+12. While sending the responce of the created Record we do not send the details of who created and who updated. Because those are internal details and it is only for auditing. The createdBy field has the users _id it is an internal data. 
+
+
+13. In the Input Validation I use Validator.js library for email validation. It is for lightweight and simplicity.
+
+
+14.  In the UpdateUserRole section in adminController I kept that an Admin cannot assign another user Admin role. I did that because We dont want the hacker to give admin access even if the admin's JWT is compromised. Because of this a hacker cannot create new admins even if he has a admin's JWT. I check and validate the updateRole and email in the admin_middleware. In the admin_middleware I check if the requested updatedRole is within the Roles and not admin and I also validate the email before sending it to the controller where it processes the data. 
+
+
+15. In the record data I did not use enum for Categories instead I normalised it by trimming and lowercasing the string. So because of that the category wise querying and category wise total will be done easily and clearly without any issue like ('Salary', "salary","SALARY").
+
+
+16. I have used  mongoose.Types.ObjectId.isValid() in updateRecord,deleteRecord,deleteUser to validate the _id. I used this because if the _id is a random string we will waste our time querying and finding out instead we use this and save the query call increasing performance and reducing latency for this api call. If the _id is Invalid we can return a 400 status code along with a "Invalid Id" message. 
+
+
+17. In the updateUserStatus and deleteUser function I had made the admin (Only an admin can view and modify user details like Role,isActive and isDelete)  cannot delete or update the status of an admin user including his own account because of this query filter { role: { $ne: 'admin' } } excludes all the admin users from modification. This is to make sure that if one Admin's JWT is compromised. The other admin accounts does not get locked out or gets deleted.  I make sure The admin cannot modify user details like email, name.
+

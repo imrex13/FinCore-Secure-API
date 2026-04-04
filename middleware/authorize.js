@@ -1,12 +1,6 @@
 const User = require('../models/userModel');
 
 
-const rolePermissions = {
-    viewer:  ["read"],
-    analyst: ["read", "summary"],
-    admin:   ["read", "write", "delete", "manage_users"]
-};
-
 const authorizeRole = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {
@@ -15,4 +9,5 @@ const authorizeRole = (...roles) => {
         next();
     };
 };
-module.exports = authorizeRole;
+
+module.exports = { authorizeRole };
