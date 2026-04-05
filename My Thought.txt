@@ -31,7 +31,7 @@ Why I did that?
 2. JWT Role Decision -> In the JWT I am storing _id and role and when the user makes a request the middleware will query the db to check the role and is active status for confirmation. Yes it would add latency in production but when we store the role in JWT and we only query the Db for isActive status that would create a problem when the Admin downgrades/upgrades the role of that particular user. Because the JWT expire in 24hr. So the user may have access when downgraded or he does not have access when upgraded so I made this decision. 
 
 
-3. Assignment Implementation
+3. Current Implementation
  Query Every time -> Currently I am querying every time when the user makes an API call. The queries are checking if the User isActive, getting his role, etc... it would add latency but for the simplicity i am currently doing this.
 
 3. Production scenario 
@@ -44,8 +44,8 @@ In a production scenario we can store the permissions and user info like {email 
 5. I used  await bcrypt.hash() instead of bcrypt.hashSync()  because while hashSync will block the entire thread process the await will hands the process to a worker thread and stops that particular function to stop for that process to complete while other request are handled as usual  
 
 
-6. Assignment Implementation 
- In this Assignment for simplicity I Hardcoded the RBAC roles. I used enum in the {role} field in userModel and when the user wants to access a resource/endpoint the middleware(jwtAuthorize.js) first checks the JwtToken and then in the router I hardcoded the parameter for the (authrize.js) middleware in each router that is required authorisation to access the endpoint.
+6. Current Implementation 
+ In this Implementation for simplicity I Hardcoded the RBAC roles. I used enum in the {role} field in userModel and when the user wants to access a resource/endpoint the middleware(jwtAuthorize.js) first checks the JwtToken and then in the router I hardcoded the parameter for the (authrize.js) middleware in each router that is required authorisation to access the endpoint.
 
 6. Production scenario:
  But then I thought what if the user changes the permission then i would have to update the entire DB. So for production grade, secure and better scalability we split the role into a seperate model and we only store the _id of the role in the User Model and when the user wants to access a endpoint that needs permission we check the user role and get the data from the Role model and join it with the user data and check the permission and user active status and is the user is soft deleted then we check if the user role has the specific permission for this endpoint. If yes the request moves on to the respective controller. If not the middleware throws a 403 Unauthorised to the user. Simple. 
