@@ -1,17 +1,23 @@
 {
   "name": "fincore-secure-api",
   "version": "1.0.0",
+  "description": "Production-grade Finance Backend featuring multi-role RBAC, integer-based currency handling (Paise), and zero-trust security architecture.",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app"
   },
   "keywords": [
-    "zorvyn"
+    "Fintech",
+    "Node.js",
+    "Express",
+    "MongoDB",
+    "RBAC",
+    "Secure-API",
+    "Financial-Systems"
   ],
-  "author": "Raghu",
-  "license": "ISC",
-  "description": "This is a backend architecture for finance. ",
+  "author": "Raghu (imrex13)",
+  "license": "Apache-2.0",
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
