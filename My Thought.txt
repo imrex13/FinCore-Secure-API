@@ -10,6 +10,14 @@ Things AI had developed:
 3. jwtAuthorize.js Middleware
 
 ---------------------------------------------
+TODO:
+
+1. MongoDB aggregate
+2. Indexing & Performance Optimization
+3. Node.js Streams & Worker Threads
+4. Advanced Auth: JWT Refresh Tokens & Redis 
+---------------------------------------------
+
 Things I had developed: 
     1. User model
     2. Middleware (Input_validator.js)
